@@ -2,7 +2,9 @@ import { MathUtils, Vector3 } from 'three';
 import type { Bounds, Obstacle, SimulationParams } from '../types';
 import { FishAgent } from './FishAgent';
 import { InteractionField } from './InteractionField';
-import { getObstacleAvoidanceForce } from '../scene/Obstacles';
+import { getObstacleAvoidanceForce, resolveObstacleCollision } from '../scene/Obstacles';
+
+const OBSTACLE_RESTITUTION = 0.55;
 
 const tmpDelta = new Vector3();
 const tmpSep = new Vector3();
@@ -64,6 +66,8 @@ export class Flock {
   step(dt: number, nowSeconds: number, params: SimulationParams): void {
     const perception = params.perceptionRadius;
     const separationRadius = perception * params.separationRadiusFactor;
+    const sigma = perception * 0.5;
+    const twoSigmaSq = 2 * sigma * sigma;
 
     for (let i = 0; i < this.fish.length; i += 1) {
       const current = this.fish[i];
@@ -72,8 +76,9 @@ export class Flock {
       tmpCoh.set(0, 0, 0);
       tmpCenter.set(0, 0, 0);
 
-      let neighborCount = 0;
       let sepCount = 0;
+      let aliWeight = 0;
+      let cohWeight = 0;
 
       for (let j = 0; j < this.fish.length; j += 1) {
         if (i === j) continue;
@@ -82,9 +87,11 @@ export class Flock {
         const d = tmpDelta.length();
         if (d === 0 || d > perception) continue;
 
-        neighborCount += 1;
-        tmpAli.add(other.velocity);
-        tmpCenter.add(other.position);
+        const w = Math.exp(-(d * d) / twoSigmaSq);
+        tmpAli.addScaledVector(other.velocity, w);
+        tmpCenter.addScaledVector(other.position, w);
+        aliWeight += w;
+        cohWeight += w;
 
         if (d < separationRadius) {
           tmpSep.add(tmpDelta.normalize().divideScalar(Math.max(d, 0.001)));
@@ -97,11 +104,13 @@ export class Flock {
         this.steerTowards(tmpSep, current.velocity, params.maxSpeed, params.maxSteer);
       }
 
-      if (neighborCount > 0) {
-        tmpAli.divideScalar(neighborCount);
+      if (aliWeight > 0) {
+        tmpAli.divideScalar(aliWeight);
         this.steerTowards(tmpAli, current.velocity, params.maxSpeed, params.maxSteer);
+      }
 
-        tmpCenter.divideScalar(neighborCount);
+      if (cohWeight > 0) {
+        tmpCenter.divideScalar(cohWeight);
         tmpCoh.copy(tmpCenter).sub(current.position);
         this.steerTowards(tmpCoh, current.velocity, params.maxSpeed, params.maxSteer);
       }
@@ -134,6 +143,9 @@ export class Flock {
 
     for (const fish of this.fish) {
       fish.integrate(dt, params.maxSpeed);
+      if (this.obstacles.length > 0) {
+        resolveObstacleCollision(fish.position, fish.velocity, this.obstacles, OBSTACLE_RESTITUTION);
+      }
       this.applyBoundaryPosition(fish.position, params.boundaryMode);
       if (fish.velocity.lengthSq() < 0.001) {
         fish.velocity.copy(baseDir).multiplyScalar(0.2);

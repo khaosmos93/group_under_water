@@ -14,16 +14,16 @@ const bounds: Bounds = {
 const defaultParams: SimulationParams = {
   fishCount: 220,
   maxSpeed: 7.5,
-  maxSteer: 0.24,
-  perceptionRadius: 20,
-  separationRadiusFactor: 0.5,
+  maxSteer: 0.26,
+  perceptionRadius: 26,
+  separationRadiusFactor: 0.32,
   boundaryMode: 'soft',
   weights: {
-    separation: 1.3,
-    alignment: 1,
-    cohesion: 0.9,
-    obstacleAvoidance: 2.4,
-    noise: 0.06
+    separation: 1.1,
+    alignment: 1.6,
+    cohesion: 1.8,
+    obstacleAvoidance: 2.6,
+    noise: 0.03
   },
   interaction: {
     mode: 'repulsion',
