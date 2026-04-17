@@ -4,9 +4,34 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>3D Fish Schooling Simulator</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #061722; color: #d9eef9;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+      #app { width: 100%; height: 100%; }
+      .boot {
+        position: fixed; inset: 0; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 10px; text-align: center;
+        background: radial-gradient(circle at top, #0f3040 0%, #061722 80%);
+      }
+      .boot h1 { margin: 0; font-size: 1.4rem; letter-spacing: 0.04em; }
+      .boot p { margin: 0; opacity: 0.75; font-size: 0.95rem; }
+      .boot .err { color: #ff9aa2; white-space: pre-wrap; max-width: 80ch;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <div class="boot" id="boot">
+        <h1>3D Fish Schooling Simulator</h1>
+        <p>Loading simulation&hellip;</p>
+      </div>
+    </div>
+    <noscript>
+      <div class="boot">
+        <h1>3D Fish Schooling Simulator</h1>
+        <p>JavaScript is required to run the simulator.</p>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
