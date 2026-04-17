@@ -13,22 +13,24 @@ const bounds: Bounds = {
 
 const defaultParams: SimulationParams = {
   fishCount: 220,
-  maxSpeed: 7.5,
-  maxSteer: 0.24,
-  perceptionRadius: 20,
-  separationRadiusFactor: 0.5,
+  maxSpeed: 8,
+  maxSteer: 0.28,
+  perceptionRadius: 32,
+  separationRadiusFactor: 0.28,
   boundaryMode: 'soft',
   weights: {
-    separation: 1.3,
-    alignment: 1,
-    cohesion: 0.9,
-    obstacleAvoidance: 2.4,
-    noise: 0.06
+    // Tight separation only at close range, strong alignment and cohesion
+    // so the flock polarizes and stays as a single moving body.
+    separation: 1.1,
+    alignment: 1.6,
+    cohesion: 1.3,
+    obstacleAvoidance: 3.2,
+    noise: 0.04
   },
   interaction: {
     mode: 'repulsion',
-    radius: 24,
-    strength: 1.4,
+    radius: 26,
+    strength: 1.6,
     decay: 1.8
   }
 };
